@@ -6,3 +6,4 @@ before_install:
   - sudo apt-get install -qq cmake
 
 install: cmake CMakeLists.txt
+script: make
