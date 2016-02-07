@@ -44,7 +44,7 @@ TARGET = $(PATHB)test$(TARGET_EXTENSION)
 
 # Tool Definitions
 CC=gcc
-CFLAGS=-I. -I$(PATHU) -I$(PATHI) -I$(PATHS) -DTEST
+CFLAGS=-std=c99 -I. -I$(PATHU) -I$(PATHI) -I$(PATHS) -DTEST
 COPTIONS:=
 
 .PHONY: all
