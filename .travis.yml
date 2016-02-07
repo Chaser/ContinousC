@@ -9,7 +9,7 @@ before_install:
 after_success:
   - codecov
 
-install: cmake CMakeLists.txt
+# install: cmake CMakeLists.txt
 script: make
 
 
