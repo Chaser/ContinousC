@@ -4,6 +4,12 @@ compiler: gcc
 before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -qq cmake
+  - pip install --user codecov
+
+after_success:
+  - codecov
 
 install: cmake CMakeLists.txt
 script: make
+
+
