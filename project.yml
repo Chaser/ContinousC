@@ -27,7 +27,9 @@
     - +:test/**
     - -:test/support
   :source:
-    - src/**
+    - src/appl
+    - src/bsp
+    - src/util
   :support:
     - test/support
 
