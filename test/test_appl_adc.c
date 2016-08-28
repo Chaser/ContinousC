@@ -28,9 +28,6 @@
 
 extern T_ADCHandler *_appl_adc__adc_handler__get(enum E_ApplAdcChannel channel);
 
-
-
-
 /*******************************************************************************
  *    PRIVATE DATA
  ******************************************************************************/
@@ -39,7 +36,43 @@ extern T_ADCHandler *_appl_adc__adc_handler__get(enum E_ApplAdcChannel channel);
 /*******************************************************************************
  *    PRIVATE FUNCTIONS
  ******************************************************************************/
-
+static T_ADCHandler_Voltage _get_by_counts_value_Callback(
+        T_ADCHandler *me,
+        T_ADCHandler_CountsValue counts_value,
+        int num_calls
+        )
+{
+    T_ADCHandler_Voltage ret = 0;
+ 
+    switch (num_calls){
+        case 0:
+            if (counts_value != 123){
+ 
+                //-- We can check whatever we want here. For example, we may
+                //   check the data pointed to by "me", but NOTE that currently
+                //   it is just zeros, since we have mocked adc_handler__ctor()
+                //   as well, so the original constructor isn't called, and
+                //   instances are left unitialized.
+ 
+                TEST_FAIL_MESSAGE(
+                        "adc_handler__voltage__get_by_counts_value() was called "
+                        "with wrong counts_value"
+                        );
+            }
+ 
+            ret = 456;
+            break;
+ 
+        default:
+            TEST_FAIL_MESSAGE(
+                    "adc_handler__voltage__get_by_counts_value() was called "
+                    "too many times"
+                    );
+            break;
+    }
+ 
+    return ret;
+}
 
 /*******************************************************************************
  *    SETUP, TEARDOWN
@@ -91,6 +124,11 @@ void test_voltage_get(void)
             //-- returned value in Volts
             456
             );
+
+     //-- Expect call to adc_handler__voltage__get_by_counts_value()
+    // adc_handler__voltage__get_by_counts_value_StubWithCallback(
+    //         _get_by_counts_value_Callback
+    //         );
 
     //-- actually call the function being tested, that should perform
     //   all pending expected calls
