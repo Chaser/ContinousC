@@ -45,17 +45,14 @@ SRC_APP = $(wildcard $(DIR_SRC)*.$(EXT))
 SRC_TEST = $(wildcard $(DIR_TEST)*.$(EXT))
 SRC_ALL = $(SRC_GTEST) $(SRC_APP) $(SRC_TEST)
 
-
-
-
 # Object files
-OBJ_GTEST = $(patsubst %.c,$(DIR_BUILD)%.o,$(SRC_GTEST))
-OBJ_SRC = $(patsubst %.c,$(DIR_BUILD)%.o,$(SRC_APP))
-OBJ_TEST = $(patsubst %.c,$(DIR_BUILD)%.o,$(SRC_TEST))
+OBJ_GTEST = $(patsubst $(DIR_GTEST)src/%.cc,$(DIR_BUILD)%.o,$(SRC_GTEST))
+OBJ_SRC = $(patsubst $(DIR_SRC)%.cc,$(DIR_BUILD)%.o,$(SRC_APP))
+OBJ_TEST = $(patsubst $(DIR_TEST)%.cc,$(DIR_BUILD)%.o,$(SRC_TEST))
 OBJECTS = $(OBJ_GTEST) $(OBJ_SRC) $(OBJ_TEST)
 
-#$(info VAR="$(SRC_GTEST)")
-#$(info VAR="$(OBJ_GTEST)")
+
+$(info VAR="$(OBJ_GTEST)")
 # $(info VAR="$(OBJ_SRC)")
 #$(info VAR="$(OBJ_TEST)")
 $(info VAR="$(OBJECTS)")
@@ -81,38 +78,21 @@ GTEST_DEP = $(DIR_GTEST)include/gtest/*.h \
             $(DIR_GTEST)include/gtest/internal/*.h \
             $(DIR_GTEST)src/*.h
 
-# Builds gtest.a and gtest_main.a.
-
-
-# For simplicity and to avoid depending on Google Test's
-# implementation details, the dependencies specified below are
-# conservative and not optimized.  This is fine as Google Test
-# compiles fast and for ordinary users its source rarely changes.
-# gtest-all.o : $(GTEST_SRCS_)
-# 	$(CXX) $(CPPFLAGS) -I$(DIR_GTEST) $(CXXFLAGS) -c \
-#             $(DIR_GTEST)/src/gtest-all.cc
-
-# gtest_main.o : $(GTEST_SRCS_)
-# 	$(CXX) $(CPPFLAGS) -I$(DIR_GTEST) $(CXXFLAGS) -c \
-#             $(DIR_GTEST)/src/gtest_main.cc
-
-
-            
 # House-keeping build targets.
 .DEFAULT_GOAL := test
 
 .PHONY : test
 test:  $(DIR_BUILD) $(TGT)
+	./$(TGT)
 
 
-$(DIR_BUILD)%.o::  $(DIR_SRC)%.c $(GTEST_DEP) 
+$(DIR_BUILD)%.o::  $(DIR_SRC)%.cc $(GTEST_DEP) 
 	$(CXX) $(CPPFLAGS) -c $(CXXFLAGS) $< -o $@
 
-
-$(DIR_BUILD)%.o::  $(DIR_TEST)%.c $(GTEST_DEP) 
+$(DIR_BUILD)%.o::  $(DIR_TEST)%.cc $(GTEST_DEP) 
 	$(CXX) $(CPPFLAGS) -c $(CXXFLAGS) $< -o $@
 
-$(DIR_BUILD)%.o::  $(DIR_GTEST)src/%.c $(GTEST_DEP) 
+$(DIR_BUILD)%.o::  $(DIR_GTEST)src/%.cc $(GTEST_DEP) 
 	$(CXX) $(CPPFLAGS) -c $(CXXFLAGS) $< -o $@
 
 
@@ -123,32 +103,10 @@ $(TGT) : $(OBJECTS)
 # Builds deployable executable
 
 .PHONY : clean
-clean :
-	$(CLEANUP) $(TESTS) gtest.a gtest_main.a *.o
+clean:
+	$(CLEANUP) $(DIR_BUILD)*.o
+	$(CLEANUP) $(TGT)
 
 
 .PHONY: all
 all: clean test
-
-
-
-# gtest-all.a : gtest-all.o
-# 	$(AR) $(ARFLAGS) $@ $^
-
-# gtest_main.a : gtest-all.a gtest_main.o
-# 	$(AR) $(ARFLAGS) $@ $^
-
-
-# # Builds a sample test.  A test should link with either gtest.a or
-# # gtest_main.a, depending on whether it defines its own main()
-# # function.
-
-# sample1.o : $(DIR_SRC)/sample1.cc $(DIR_SRC)/sample1.h $(GTEST_DEP)
-# 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(DIR_SRC)/sample1.cc
-
-# sample1_unittest.o : $(DIR_SRC)/sample1_unittest.cc \
-#                      $(DIR_SRC)/sample1.h $(GTEST_DEP)
-# 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(DIR_SRC)/sample1_unittest.cc
-
-# sample1_unittest : sample1.o sample1_unittest.o gtest_main.a
-# 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
